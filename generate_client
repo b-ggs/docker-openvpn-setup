@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+
+REPO=${REPO:-kylemanna/openvpn}
+
+echo "Using repo ${REPO}..."
+
+OVPN_DATA=${OVPN_DATA:-"$HOME/.ovpn-data"}
+
+if [[ -z "$CLIENT_NAME" ]]; then
+  echo "CLIENT_NAME env var is required"
+  exit 1
+fi
+
+echo "Generating client ($CLIENT_NAME)..."
+
+docker run \
+  -v $OVPN_DATA:/etc/openvpn \
+  --log-driver=none \
+  --rm \
+  -it \
+  $REPO \
+  easyrsa build-client-full $CLIENT_NAME nopass
+
+echo "Creating OVPN configs..."
+
+docker run \
+  -v $OVPN_DATA:/etc/openvpn \
+  --log-driver=none \
+  --rm \
+  $REPO \
+  ovpn_getclient $CLIENT_NAME > $CLIENT_NAME.ovpn
+
+echo "OVPN can be found at $(pwd)/$CLIENT_NAME.ovpn!"

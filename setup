@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+
+REPO=${REPO:-kylemanna/openvpn}
+
+echo "Using repo ${REPO}..."
+
+if ! command -v docker &> /dev/null; then
+  echo "Docker is not installed"
+  exit 1
+fi
+
+if [[ -z "$ADDRESS" ]]; then
+  echo "ADDRESS env var is required"
+  exit 1
+fi
+
+OVPN_DATA=${OVPN_DATA:-"$HOME/.ovpn-data"}
+
+echo "Setting up volume ($OVPN_DATA)..."
+
+docker run \
+  -v $OVPN_DATA:/etc/openvpn \
+  --log-driver=none \
+  --rm \
+  $REPO \
+  ovpn_genconfig -u udp://$ADDRESS
+
+docker run \
+  -v $OVPN_DATA:/etc/openvpn \
+  --log-driver=none \
+  --rm \
+  -it \
+  $REPO \
+  ovpn_initpki
+
+echo "Starting OpenVPN server..."
+
+docker run \
+  -v $OVPN_DATA:/etc/openvpn \
+  -d \
+  -p 1194:1194/udp \
+  --cap-add=NET_ADMIN \
+  $REPO
+
+echo "Success!"
