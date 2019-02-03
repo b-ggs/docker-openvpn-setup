@@ -14,7 +14,9 @@ if [[ -z "$ADDRESS" ]]; then
   exit 1
 fi
 
-OVPN_DATA=${OVPN_DATA:-"$HOME/.ovpn-data"}
+docker volume create ovpn-data
+
+OVPN_DATA="ovpn-data"
 
 echo "Setting up volume ($OVPN_DATA)..."
 

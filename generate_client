@@ -4,7 +4,7 @@ REPO=${REPO:-kylemanna/openvpn}
 
 echo "Using repo ${REPO}..."
 
-OVPN_DATA=${OVPN_DATA:-"$HOME/.ovpn-data"}
+OVPN_DATA="ovpn-data"
 
 if [[ -z "$CLIENT_NAME" ]]; then
   echo "CLIENT_NAME env var is required"
